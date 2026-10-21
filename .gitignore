@@ -1,0 +1,6 @@
+**/dist
+**/certs
+**/node_modules
+
+# vim swap
+.*.sw?

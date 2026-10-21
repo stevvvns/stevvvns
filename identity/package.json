@@ -1,0 +1,30 @@
+{
+  "name": "@stevvvns/identity",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "dist/lib/index.js",
+  "module": "dist/lib/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/lib/index.js",
+      "default": "./dist/lib/index.js"
+    }
+  },
+  "files": [
+    "dist/lib/index.js"
+  ],
+  "sideEffects": true,
+  "scripts": {
+    "build": "npm run build:app && npm run build:lib",
+    "build:app": "mkdir -p dist; cp src/index.html dist/; npx esbuild --bundle --format=esm --keep-names --platform=browser --outdir=dist src/app.js",
+    "build:lib": "npx esbuild --bundle --format=esm --platform=browser --outfile=dist/lib/index.js --minify src/lib/index.js",
+    "build:watch": "bash scripts/dev.sh",
+    "serve": "bash scripts/serve.sh"
+  },
+  "author": "",
+  "license": "MIT",
+  "description": "",
+  "dependencies": {
+    "@stevvvns/incomponent": "^0.1.2"
+  }
+}
