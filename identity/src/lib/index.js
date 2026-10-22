@@ -1,17 +1,15 @@
 export const foo = 42;
 
-const KEYS_VERSION = 1;
+const IDENTITY_VERSION = 1;
+const ACCOUNTS_VERSION = 1;
 
-class KeyStore {
-  constructor() {
-    const req = indexedDB.open('identity', KEYS_VERSION);
+class IndexedStore {
+  constructor(name, version, upgrade) {
+    const req = indexedDB.open(name, version);
     this.ready = new Promise((resolve, reject) => {
       req.onerror = evt => reject(evt.error);
       req.onupgradeneeded = evt => {
-        const db = evt.target.result;
-        if (!db.objectStoreNames.contains('keys')) {
-          db.createObjectStore('keys');
-        }
+        upgrade(evt.target.result);
       };
       req.onsuccess = evt => {
         resolve(evt.target.result);
@@ -19,29 +17,98 @@ class KeyStore {
     });
   }
 
-  async #trans(mode = 'readonly') {
+  async trans(store, mode = 'readonly') {
     const db = await this.ready;
-    const tx = db.transaction('keys', mode);
-    const store = tx.objectStore('keys');
-    return { tx, store };
-  }
-  async set(name, key) {
-    const { tx, store } = await this.#trans('readwrite');
-    store.put(key.privateKey, name);
-    store.put(key.publicKey, name + '.pub');
-    return new Promise((resolve, reject) => {
-      tx.oncomplete = () => resolve();
-      tx.onerror = () => reject(tx.error);
-    });
+    const tx = db.transaction(store, mode);
+    return { tx, store: tx.objectStore(store) };
   }
 
-  async get(name) {
-    const { store } = await this.#trans('readonly');
+  async #query(storeName, name, mtd) {
+    const { store } = await this.trans(storeName);
     return new Promise((resolve, reject) => {
-      const req = store.get(name);
+      const req = store[mtd](name);
       req.onsuccess = evt => resolve(evt.target.result);
       req.onerror = () => reject(req.error);
     });
+  }
+
+  async #mut(storeName, cb) {
+    const { tx, store } = await this.trans(storeName, 'readwrite');
+    await cb(store);
+    return new Promise((resolve, reject) => {
+      tx.oncomplete = () => resolve();
+      tx.onerror = evt => reject(evt.target.error);
+    });
+  }
+
+  getOne(store, name) {
+    return this.#query(store, name, 'get');
+  }
+
+  getAll(store, name = undefined) {
+    return this.#query(store, name, 'getAll');
+  }
+
+  putAll(storeName, values) {
+    return this.#mut(storeName, store => {
+      for (const [key, val] of Object.entries(values)) {
+        store.put(val, key);
+      }
+    });
+  }
+
+  putOne(storeName, value) {
+    return this.#mut(storeName, store => {
+      store.put(value);
+    });
+  }
+}
+
+export class KeyStore extends IndexedStore {
+  constructor() {
+    super('identity', IDENTITY_VERSION, db => {
+      if (!db.objectStoreNames.contains('keys')) {
+        db.createObjectStore('keys');
+      }
+    });
+  }
+
+  init(key) {
+    return this.putAll('keys', {
+      key: key.privateKey,
+      pub: key.publicKey
+    });
+  }
+
+  get(name) {
+    return this.getOne('keys', name);
+  }
+
+  static willExpire() {
+     /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  }
+
+  static isPersisted() {
+    return navigator.storage?.persisted?.();
+  }
+
+  static requestPersistence() {
+    navigator.storage?.persist?.();
+  }
+
+  static async assertCapabilities() {
+    if (!window.crypto?.subtle || !window.indexedDB) {
+      throw new Error('browser is missing core capabilities');
+    }
+
+    const testKey = await crypto.subtle.generateKey(
+      { name: 'ECDSA', namedCurve: 'P-256' },
+      false,
+      ['sign']
+    );
+
+    const channel = new MessageChannel();
+    channel.port1.postMessage(testKey);
   }
 }
 
@@ -56,35 +123,34 @@ function genKey() {
   );
 }
 
-async function assertCapabilities() {
-  if (!window.crypto?.subtle || !window.indexedDB) {
-    throw new Error('browser is missing core capabilities');
+class Accounts extends IndexedStore {
+  constructor() {
+    super('accounts', ACCOUNTS_VERSION, db => {
+      if (!db.objectStoreNames.contains('accounts')) {
+        const store = db.createObjectStore('accounts', { keyPath: 'id' });
+        store.createIndex('accounts', 'name', { unique: true });
+      }
+    });
   }
 
-  const testKey = await crypto.subtle.generateKey(
-    { name: "ECDSA", namedCurve: "P-256" },
-    false, // non-extractable test
-    ["sign"]
-  );
+  getList() {
+    return this.getAll('accounts');
+  }
 
-  const channel = new MessageChannel();
-  channel.port1.postMessage(testKey);
-
-  // TODO firefox shows a scary warning, should probably be moved to a field in account settings or something
-  // there is also a persisted() method to check
-  //navigator.storage?.persist?.();
+  add(name) {
+    return this.putOne('accounts', { id: crypto.randomUUID(), name });
+  }
 }
 
-export async function test(log = () => {}) {
-  await assertCapabilities();
-  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+export default async function initIdentity(log = () => {}) {
+  await KeyStore.assertCapabilities();
   const store = new KeyStore;
-  let deviceKey = await store.get('');
-  let devicePub = await store.get('.pub');
+  let deviceKey = await store.get('key');
+  let devicePub = await store.get('pub');
   if (!deviceKey) {
     log('generate device key');
     const gen = await genKey();
-    await store.set('', gen);
+    await store.init(gen);
     deviceKey = gen.privateKey;
     devicePub = gen.publicKey;
   } else {
@@ -101,17 +167,13 @@ export async function test(log = () => {}) {
       te.encode(payload)
     );
   }
-  /*
-  function verify(signed, payload) {
-    const te = new TextEncoder;
-    return crypto.subtle.verify(
-      { name: 'ECDSA', hash: { name: 'SHA-256' }},
-      devicePub,
-      signed,
-      te.encode(payload)
-    );
+  const accounts = new Accounts();
+  const list = await accounts.getList();
+  if (list.length === 0) {
+    await accounts.add('default');
   }
-  console.log(await verify(await sign('asdf'), 'asdf'));
-  */
-  return sign;
+  return {
+    sign,
+    accounts,
+  };
 }

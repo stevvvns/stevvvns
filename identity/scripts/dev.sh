@@ -7,13 +7,14 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 mkdir -p "$ROOT/dist"
 
 # Watch both the demo app and the library in the background.
-# `--watch=forever` keeps esbuild watching even though the background jobs'
-# stdin is /dev/null (a plain `--watch` would exit immediately).
+# The `watch:*` scripts use `--watch=forever` so esbuild keeps watching even
+# though the background jobs' stdin is /dev/null, and emit sourcemaps (no
+# minification) for debugging.
 # Each watcher runs in its own session (setsid) so the whole process tree can
 # be torn down cleanly on exit.
-setsid npm run build:app -- --watch=forever &
+setsid npm run watch:app &
 app_pid=$!
-setsid npm run build:lib -- --watch=forever &
+setsid npm run watch:lib &
 lib_pid=$!
 
 # Stop the watchers (and their children) when this script exits (e.g. Ctrl+C).

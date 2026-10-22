@@ -16,8 +16,10 @@
   "sideEffects": true,
   "scripts": {
     "build": "npm run build:app && npm run build:lib",
-    "build:app": "mkdir -p dist; cp src/index.html dist/; npx esbuild --bundle --format=esm --keep-names --platform=browser --outdir=dist src/app.js",
-    "build:lib": "npx esbuild --bundle --format=esm --platform=browser --outfile=dist/lib/index.js --minify src/lib/index.js",
+    "build:app": "mkdir -p dist; cp src/index.html dist/; npx esbuild --bundle --format=esm --minify --keep-names --platform=browser --outdir=dist src/app.js",
+    "build:lib": "npx esbuild --bundle --format=esm --minify --platform=browser --outfile=dist/lib/index.js src/lib/index.js",
+    "watch:app": "mkdir -p dist; cp src/index.html dist/; npx esbuild --bundle --format=esm --sourcemap --keep-names --platform=browser --outdir=dist src/app.js --watch=forever",
+    "watch:lib": "npx esbuild --bundle --format=esm --sourcemap --platform=browser --outfile=dist/lib/index.js src/lib/index.js --watch=forever",
     "build:watch": "bash scripts/dev.sh",
     "serve": "bash scripts/serve.sh"
   },
