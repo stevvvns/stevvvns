@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Example</title>
+  <script type="module">
+import {
+  comp, html, ref, derive, cx, sx
+} from './dist/main.js';
+
+// simple store/context, just import this wherever needed
+export const pointStore = (() => {
+  // reactive state (react useState)
+  const points = ref(0);
+
+  // react useMemo
+  const doubled = derive(() => points.value * 2);
+  // you can derive an effect instead of (or in addition to) a value if you want
+  derive(() => {
+    if (points.value % 100 === 0) {
+      console.log(points.value);
+    }
+  });
+  // you can provide a second param to derive() with an [array, of, additional, refs]
+  // if it is awkward to make sure all the refs you depend on are evaluated every
+  // time the function is called.
+
+  // mutators are just functions
+  function add(amount) {
+    points.value += amount;
+  }
+  return { points, doubled, add };
+})();
+
+// <inc-example> web component. make sure your minified build does not mangle function
+// names (esbuild --keep-names, webpack terserOptions keep_fnames=true)
+comp(function Example() {
+  const { points, doubled } = pointStore;
+  const clicks = ref(0);
+  // custom event receiver. react useCallback-like caching is never needed since these
+  // setup functions are only ever called once per instance of the component
+  function wasClicked(evt) {
+    clicks.value += evt.detail.times;
+  }
+  // returns become instance variables in the `template` callback, in addition to
+  // all the other stuff from HTMLElement
+  return { points, doubled, clicks, wasClicked };
+})
+  // refs are unwrapped for templates, so you can say el.points instead of
+  // el.points.value
+  .template(
+    el => html`
+    <p>
+      <span
+        class=${cx({ red: el.points % 3 === 0})}
+        style=${sx({
+          backgroundColor: el.points % 5 === 0 ? 'yellow' : 'transparent'
+        })
+      }>
+        [${el.clicks}] ${el.points.toLocaleString()}
+      </span>
+      <inc-doubled .amount=${el.doubled}></inc-doubled>
+      <slot @clicked=${el.wasClicked}></slot>
+    </p>`
+  )
+  .style('span { color: purple; margin-right: 6px } .red { color: red }');
+
+// <inc-button>
+comp(
+  function Button(el) {
+    const { add } = pointStore;
+    const amount = ref(1);
+    derive(cleanup => {
+      // if you need to clean up, you must save any values needed to do so, because
+      // amount.value when the cleanup function is called may be different
+      const clean = amount.value;
+      cleanup(() => {
+        console.log('cleanup', clean);
+      });
+    });
+    return {
+      inc() {
+        add(amount.value);
+        // amount.value *= 2 makes more sense here, but for demonstration sake, you
+        // can provide a callback that mutates the value.
+        //
+        // oridinarily you want to do this when your value type is an object or array
+        // that you want to mutate in ways that don't change the object's identity
+        // (array.push(...) or similar), as the mutation will create a new immutable
+        // object incorporating any changes you make. see the immer docs for more
+        // details.
+        amount.mut(val => val * 2);
+        // contrived example of a custom event
+        el.emit('clicked', { times: 1 });
+      },
+      amount
+    };
+  },
+  // you can provide a list of observed attributes for plain HTML interop, like if
+  // you are exporting a component library. if you're just making your own app you
+  // can pass data as props using lit-htmls .prop=${val} and not bother with this.
+  //
+  // you should pass camelCased names here, and acces the attributes with
+  // el.camelCased, however when setting the attribute externally in html
+  // you must used a dashed equivalent. eg:
+  // comp('SomeEl', ['someAttr']).template(el => html`<p>${el.someAttrs}</p>`)
+  // is used as
+  // <inc-some-el some-attr="foo">
+  ['label']
+)
+  .template(
+    el => html`<button @click=${el.inc}>${el.label}</button>`
+  )
+  // if you need to do something with the DOM, you can provide a callback for just
+  // after the first render
+  .init(el => el.shadowRoot.querySelector('button').focus());
+
+// <inc-doubled>
+comp(function Doubled() {
+  // setting a default for a prop that is expected to be provided by parent comp
+  return { amount: 0 };
+})
+  .init(el => {
+    // another inane example, but you can use init() to do things after the DOM
+    // for the component is initially rendered
+    const span = el.shadowRoot.querySelector('span');
+    span.addEventListener('mouseover', console.info);
+    // optionally return a function to do cleanup when the component is unmounted
+    return () => span.removeEventListener('mouseover', console.info);
+  })
+  .template(el => html`<span>(${el.amount.toLocaleString()})<inc-exclam></inc-exclam></span>`);
+
+
+// <inc-exclam>, no setup function required so just pass the name, non-reactive
+// template doesn't need to be a function
+comp('Exclam').template(html`!`);
+  </script>
+</head>
+<body>
+  <h1>Example app</h1>
+  <inc-example><inc-button label="Increment"></inc-button></inc-example>
+</body>
+</html>

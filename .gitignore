@@ -1,6 +1,6 @@
-**/dist
-**/certs
-**/node_modules
+dist
+certs
+node_modules
 
 # vim swap
 .*.sw?

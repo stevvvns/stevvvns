@@ -1,0 +1,28 @@
+{
+  "name": "@stevvvns/identity-server",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "src/lib/index.js",
+  "exports": {
+    ".": {
+      "import": "./src/lib/index.js",
+      "default": "./src/lib/index.js"
+    }
+  },
+  "files": [
+    "src/lib/index.js"
+  ],
+  "scripts": {
+    "start": "node bin/server.js",
+    "watch": "PORT=39393 npx nodemon bin/server.js"
+  },
+  "license": "MIT",
+  "description": "Server-side signature verification for @stevvvns/identity-client.",
+  "dependencies": {
+    "msgpack5": "^6.1.0"
+  },
+  "devDependencies": {
+    "koa": "^3.2.1",
+    "koa-static": "^5.0.0"
+  }
+}

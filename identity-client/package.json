@@ -1,5 +1,5 @@
 {
-  "name": "@stevvvns/identity",
+  "name": "@stevvvns/identity-client",
   "version": "1.0.0",
   "type": "module",
   "main": "dist/lib/index.js",
@@ -20,13 +20,13 @@
     "build:lib": "npx esbuild --bundle --format=esm --minify --platform=browser --outfile=dist/lib/index.js src/lib/index.js",
     "watch:app": "mkdir -p dist; cp src/index.html dist/; npx esbuild --bundle --format=esm --sourcemap --keep-names --platform=browser --outdir=dist src/app.js --watch=forever",
     "watch:lib": "npx esbuild --bundle --format=esm --sourcemap --platform=browser --outfile=dist/lib/index.js src/lib/index.js --watch=forever",
-    "build:watch": "bash scripts/dev.sh",
-    "serve": "bash scripts/serve.sh"
+    "build:watch": "bash scripts/watch.sh"
   },
   "author": "",
   "license": "MIT",
   "description": "",
   "dependencies": {
-    "@stevvvns/incomponent": "^0.1.2"
+    "@stevvvns/incomponent": "^0.1.2",
+    "msgpack5": "^6.1.0"
   }
 }

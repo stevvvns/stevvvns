@@ -1,4 +1,6 @@
-export const foo = 42;
+import { store } from '@stevvvns/incomponent';
+import msgpack from 'msgpack5/dist/msgpack5';
+const { encode: mpack } = msgpack();
 
 const IDENTITY_VERSION = 1;
 const ACCOUNTS_VERSION = 1;
@@ -7,11 +9,11 @@ class IndexedStore {
   constructor(name, version, upgrade) {
     const req = indexedDB.open(name, version);
     this.ready = new Promise((resolve, reject) => {
-      req.onerror = evt => reject(evt.error);
-      req.onupgradeneeded = evt => {
+      req.onerror = (evt) => reject(evt.error);
+      req.onupgradeneeded = (evt) => {
         upgrade(evt.target.result);
       };
-      req.onsuccess = evt => {
+      req.onsuccess = (evt) => {
         resolve(evt.target.result);
       };
     });
@@ -27,7 +29,7 @@ class IndexedStore {
     const { store } = await this.trans(storeName);
     return new Promise((resolve, reject) => {
       const req = store[mtd](name);
-      req.onsuccess = evt => resolve(evt.target.result);
+      req.onsuccess = (evt) => resolve(evt.target.result);
       req.onerror = () => reject(req.error);
     });
   }
@@ -37,7 +39,7 @@ class IndexedStore {
     await cb(store);
     return new Promise((resolve, reject) => {
       tx.oncomplete = () => resolve();
-      tx.onerror = evt => reject(evt.target.error);
+      tx.onerror = (evt) => reject(evt.target.error);
     });
   }
 
@@ -50,7 +52,7 @@ class IndexedStore {
   }
 
   putAll(storeName, values) {
-    return this.#mut(storeName, store => {
+    return this.#mut(storeName, (store) => {
       for (const [key, val] of Object.entries(values)) {
         store.put(val, key);
       }
@@ -58,25 +60,29 @@ class IndexedStore {
   }
 
   putOne(storeName, value) {
-    return this.#mut(storeName, store => {
+    return this.#mut(storeName, (store) => {
       store.put(value);
     });
+  }
+
+  deleteOne(storeName, key) {
+    return this.#mut(storeName, (store) => store.delete(key));
   }
 }
 
 export class KeyStore extends IndexedStore {
   constructor() {
-    super('identity', IDENTITY_VERSION, db => {
+    super('identity', IDENTITY_VERSION, (db) => {
       if (!db.objectStoreNames.contains('keys')) {
         db.createObjectStore('keys');
       }
     });
   }
 
-  init(key) {
+  init({ privateKey, pubRaw }) {
     return this.putAll('keys', {
-      key: key.privateKey,
-      pub: key.publicKey
+      key: privateKey,
+      pub: pubRaw
     });
   }
 
@@ -85,7 +91,7 @@ export class KeyStore extends IndexedStore {
   }
 
   static willExpire() {
-     /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
   }
 
   static isPersisted() {
@@ -112,20 +118,30 @@ export class KeyStore extends IndexedStore {
   }
 }
 
-function genKey() {
-  return crypto.subtle.generateKey(
-    {
-      name: 'ECDSA',
-      namedCurve: 'P-256'
-    },
-    false,
-    ['sign', 'verify']
+const ECDSA = { name: 'ECDSA', namedCurve: 'P-256' };
+
+async function genKey() {
+  // Generate extractable so we can export the public key; the private key is
+  // re-imported non-extractable so it can't leave the browser.
+  const pair = await crypto.subtle.generateKey(ECDSA, true, ['sign', 'verify']);
+
+  const pubRaw = new Uint8Array(
+    await crypto.subtle.exportKey('raw', pair.publicKey)
   );
+  const privateKey = await crypto.subtle.importKey(
+    'pkcs8',
+    await crypto.subtle.exportKey('pkcs8', pair.privateKey),
+    ECDSA,
+    false,
+    ['sign']
+  );
+
+  return { privateKey, pubRaw };
 }
 
 class Accounts extends IndexedStore {
   constructor() {
-    super('accounts', ACCOUNTS_VERSION, db => {
+    super('accounts', ACCOUNTS_VERSION, (db) => {
       if (!db.objectStoreNames.contains('accounts')) {
         const store = db.createObjectStore('accounts', { keyPath: 'id' });
         store.createIndex('accounts', 'name', { unique: true });
@@ -138,13 +154,37 @@ class Accounts extends IndexedStore {
   }
 
   add(name) {
-    return this.putOne('accounts', { id: crypto.randomUUID(), name });
+    return this.putOne('accounts', {
+      id: crypto.randomUUID(),
+      name,
+      seed: Math.random()
+    });
+  }
+
+  async rename(id, name) {
+    const account = await this.getOne('accounts', id);
+    if (!account) throw new Error(`account ${id} not found`);
+    return this.putOne('accounts', { ...account, name });
+  }
+
+  async reroll(id) {
+    const account = await this.getOne('accounts', id);
+    if (!account) throw new Error(`account ${id} not found`);
+    return this.putOne('accounts', { ...account, seed: Math.random() });
+  }
+
+  async remove(id) {
+    await this.deleteOne('accounts', id);
+    const remaining = await this.getAll('accounts');
+    if (remaining.length === 0) {
+      await this.add('default');
+    }
   }
 }
 
 export default async function initIdentity(log = () => {}) {
   await KeyStore.assertCapabilities();
-  const store = new KeyStore;
+  const store = new KeyStore();
   let deviceKey = await store.get('key');
   let devicePub = await store.get('pub');
   if (!deviceKey) {
@@ -152,28 +192,38 @@ export default async function initIdentity(log = () => {}) {
     const gen = await genKey();
     await store.init(gen);
     deviceKey = gen.privateKey;
-    devicePub = gen.publicKey;
+    devicePub = gen.pubRaw;
   } else {
     log('recovered device key');
   }
-  function sign(payload) {
-    const te = new TextEncoder;
-    return crypto.subtle.sign(
-      {
-        name: 'ECDSA',
-        hash: { name: 'SHA-256' }
-      },
-      deviceKey,
-      te.encode(payload)
+  async function sign(payload) {
+    const packed = mpack(payload);
+    const sig = new Uint8Array(
+      await crypto.subtle.sign(
+        {
+          name: 'ECDSA',
+          hash: { name: 'SHA-256' }
+        },
+        deviceKey,
+        packed
+      )
     );
+
+    // <public key (65B)><signature (64B)><msgpack payload>
+    const out = new Uint8Array(devicePub.length + sig.length + packed.length);
+    out.set(devicePub, 0);
+    out.set(sig, devicePub.length);
+    out.set(packed, devicePub.length + sig.length);
+    return out;
   }
   const accounts = new Accounts();
   const list = await accounts.getList();
+  console.log({ list });
   if (list.length === 0) {
     await accounts.add('default');
   }
   return {
     sign,
-    accounts,
+    accounts
   };
 }

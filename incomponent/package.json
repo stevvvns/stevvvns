@@ -1,0 +1,34 @@
+{
+  "name": "@stevvvns/incomponent",
+  "version": "0.1.2",
+  "type": "module",
+  "module": "dist/main.js",
+  "main": "dist/main.js",
+  "exports": {
+    ".": {
+      "import": "./dist/main.js",
+      "default": "./dist/main.js"
+    }
+  },
+  "files": [
+    "dist/main.js",
+    "LICENSE"
+  ],
+  "sideEffects": true,
+  "license": "MIT",
+  "scripts": {
+    "example": "npx serve",
+    "build": "npx esbuild --bundle --format=esm --platform=browser --outfile=dist/main.js --minify src/index.js",
+    "pub": "npm run build && npm publish --access=public",
+    "lint": "npx eslint src --fix; npx prettier src --single-quote --write"
+  },
+  "dependencies": {
+    "immer": "^10.1.3",
+    "lit-html": "^3.3.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.37.0",
+    "eslint": "^9.37.0",
+    "globals": "^16.4.0"
+  }
+}
