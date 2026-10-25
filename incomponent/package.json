@@ -19,6 +19,7 @@
   "scripts": {
     "example": "npx serve",
     "build": "npx esbuild --bundle --format=esm --platform=browser --outfile=dist/main.js --minify src/index.js",
+    "build:watch": "npm run build -- --watch",
     "pub": "npm run build && npm publish --access=public",
     "lint": "npx eslint src --fix; npx prettier src --single-quote --write"
   },

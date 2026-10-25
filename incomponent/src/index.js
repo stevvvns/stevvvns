@@ -20,12 +20,12 @@ export function store(fn) {
   return function use() {
     if (!asyncStore) {
       if (!fn._globalInst) {
-        fn._globaInst = fn();
+        fn._globalInst = fn();
       }
       return fn._globalInst;
     }
     const st = asyncStore.getStore();
-    if (!('_cache' in st)) {
+    if (!('_storeCache' in st)) {
       st._storeCache = new Map();
     }
     if (!st._storeCache.has(fn)) {

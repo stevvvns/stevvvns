@@ -25,7 +25,8 @@ app.use(async (ctx, next) => {
     const { payload, publicKey } = await verify(Buffer.concat(chunks));
     ctx.type = 'application/json';
     ctx.body = {
-      payload: payload.toUpperCase(),
+      payload: payload.text.toUpperCase(),
+      account: payload._account,
       publicKey: Buffer.from(publicKey).toString('base64'),
     };
   } catch (err) {

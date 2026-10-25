@@ -17,9 +17,9 @@
   "scripts": {
     "build": "npm run build:app && npm run build:lib",
     "build:app": "mkdir -p dist; cp src/index.html dist/; npx esbuild --bundle --format=esm --minify --keep-names --platform=browser --outdir=dist src/app.js",
-    "build:lib": "npx esbuild --bundle --format=esm --minify --platform=browser --outfile=dist/lib/index.js src/lib/index.js",
+    "build:lib": "npx esbuild --bundle --format=esm --minify --platform=browser --external:@stevvvns/incomponent --outfile=dist/lib/index.js src/lib/index.js",
     "watch:app": "mkdir -p dist; cp src/index.html dist/; npx esbuild --bundle --format=esm --sourcemap --keep-names --platform=browser --outdir=dist src/app.js --watch=forever",
-    "watch:lib": "npx esbuild --bundle --format=esm --sourcemap --platform=browser --outfile=dist/lib/index.js src/lib/index.js --watch=forever",
+    "watch:lib": "npx esbuild --bundle --format=esm --sourcemap --platform=browser --external:@stevvvns/incomponent --outfile=dist/lib/index.js src/lib/index.js --watch=forever",
     "build:watch": "bash scripts/watch.sh"
   },
   "author": "",

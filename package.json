@@ -5,7 +5,7 @@
   "type": "module",
   "workspaces": ["incomponent", "identity-client", "identity-server", "migrate"],
   "scripts": {
-    "lint": "eslint '*/src/**/*.{js,mjs,cjs}' --fix; prettier '*/src/**/*.{js,mjs,cjs,json,html}' --write",
+    "lint": "prettier '*/src/**/*.{js,mjs,cjs,json,html}' --write; eslint '*/src/**/*.{js,mjs,cjs}' --fix",
     "lint:check": "eslint '*/src/**/*.{js,mjs,cjs}' && prettier '*/src/**/*.{js,mjs,cjs,json,html}' --check"
   },
   "devDependencies": {
