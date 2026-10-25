@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+  <head>
+    <script type="module">
+      import getAvatar from './index.js';
+      // hsl c0, c1, c2, 0.2
+      function r() {
+        return (Math.random() + 1).toString(36).substring(7);
+      }
+      function mk(str, cont, opts) {
+        const wrap = document.createElement('div');
+        const img = document.createElement('img');
+        const avatar = getAvatar(str, opts);
+        img.src = avatar.imageUrl;
+        img.setAttribute('title', JSON.stringify(opts));
+        wrap.style.background = `hsl(${avatar.color[0]}, ${avatar.color[1]}%, ${avatar.color[2]}%, 0.2)`;
+        wrap.classList.add('wrap');
+        wrap.appendChild(img);
+        cont.append(wrap);
+      }
+      for (const str of [r(), r(), r(), r()]) {
+        const cont = document.createElement('div');
+        cont.style.display = 'inline-block';
+        document.body.appendChild(cont);
+        for (const [size, scale] of [
+          [4, 24],
+          [6, 16],
+          [8, 12],
+          [10, 9.6],
+          [12, 8]
+        ]) {
+          mk(str, cont, { symmetry: 'vertical', size, scale });
+          mk(str, cont, { symmetry: 'horizontal', size, scale });
+          mk(str, cont, { symmetry: 'quad', size, scale });
+          cont.appendChild(document.createElement('br'));
+        }
+      }
+    </script>
+    <style>
+      .wrap {
+        display: inline-block;
+        border-radius: 2px;
+        padding: 6px 12px;
+        margin: 4px;
+      }
+    </style>
+  </head>
+  <body></body>
+</html>

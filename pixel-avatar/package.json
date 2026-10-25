@@ -1,0 +1,27 @@
+{
+  "name": "@stevvvns/pixel-avatar",
+  "version": "0.0.1",
+  "type": "module",
+  "main": "./src/index.js",
+  "exports": {
+    ".": {
+      "import": "./src/index.js",
+      "default": "./src/index.js"
+    }
+  },
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "example": "npx serve ./src",
+    "pub": "npm publish --access=public"
+  },
+  "author": "",
+  "license": "MIT",
+  "description": "",
+  "dependencies": {
+    "seedrandom": "^3.0.5"
+  }
+}
