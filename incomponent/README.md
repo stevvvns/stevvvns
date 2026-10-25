@@ -1,7 +1,7 @@
 # incomponent
 
 ## What?
-This is a minimal component library that rips off most of Vue's composition API, and uses `lit-html` for rendering, `immer` for immutable state.
+This is a minimal component library that rips off most of Vue's composition API, and uses `lit-html` for rendering.
 
 You get a setup function that gets called _once_ per component instance, so you don't have to worry about crap like the Rules of Hooks or memoizing everything.
 
@@ -84,7 +84,7 @@ This does about what you'd expect, giving you a button you can click to see two 
 	 * If there are additional `ref`s you evaluate only conditionally, you can include them in the optional second argument to track them as well.
  * If you call the cleanup parameter with a callback, it will be invoked before the derive is recalculated and after the component is unmounted.
  * **Derives cannot be `async`**, but you can resolve async functions inside and set refs from the result.
- * **Derives cannot contain other derives**, they should all be at the top level of your setup function.
+ * **Derives cannot be nested** — creating a derive inside another derive's callback throws. To depend on another derive, just read its `.value`.
 
 #### `comp(function SetupFunction() {})`
  * This is how you make a web component.

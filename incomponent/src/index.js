@@ -1,4 +1,3 @@
-import { produce } from 'immer';
 import { html, svg, render } from 'lit-html';
 import { classMap } from 'lit-html/directives/class-map.js';
 import { styleMap } from 'lit-html/directives/style-map.js';
@@ -42,6 +41,9 @@ class Ref {
   }
 
   static forDerived(cb, deps) {
+    if (Ref.spy) {
+      throw new Error('derive() cannot be nested inside another derive');
+    }
     let id, regCleanup;
     if (Ref.registerCleanups) {
       id = Symbol();
@@ -56,8 +58,12 @@ class Ref {
     }
     const depSet = new Set(deps);
     Ref.spy = (r) => depSet.add(r);
-    const value = cb(setClean);
-    Ref.spy = null;
+    let value;
+    try {
+      value = cb(setClean);
+    } finally {
+      Ref.spy = null;
+    }
 
     const rv = ref(value);
     rv.compute = cb;
@@ -93,7 +99,9 @@ class Ref {
   }
 
   mut(cb) {
-    this.value = produce(this.value, cb);
+    const draft = structuredClone(this.value);
+    const result = cb(draft);
+    this.value = result === undefined ? draft : result;
   }
 
   onChange(cb) {

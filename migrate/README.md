@@ -1,14 +1,14 @@
 # migrate
 
 ## What?
-This is a database migration utility target node and postgres, although theoretically you can use other databases.
+This is a database migration utility targeting node and postgres, although theoretically you can use other databases.
 
 ## Why?
-It's simpler and more ergonomic to use that many alternatives.
+It's simpler and more ergonomic to use than many alternatives.
 
 ## How?
 ```
-$ npm i --save-dev @stevvvns/migrate`
+$ npm i --save-dev @stevvvns/migrate
 $ mkdir migrations
 $ ln -s node_modules/.bin/migrate
 ```
