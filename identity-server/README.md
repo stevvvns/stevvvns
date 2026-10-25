@@ -4,7 +4,7 @@
 Server-side signature verification for messages signed by `@stevvvns/identity-client`.
 
 ## Why?
-So a server can confirm a request came from one of your personas, without ever seeing the browser's device key.
+Currently just a stub for signature verification, or to run as a dev test to manually verify changes to the identity library.
 
 ## How?
 `$ npm i @stevvvns/identity-server`
@@ -13,5 +13,8 @@ So a server can confirm a request came from one of your personas, without ever s
 import { verify } from '@stevvvns/identity-server';
 
 const { publicKey, payload } = await verify(buffer);
-// payload is the msgpack-decoded message object, with the account id stamped on it
+// payload has _account: some uuid, if your app is not 1:1 device<->account
 ```
+
+## TODO
+ * Support the client library in mitigations for local-first pitfalls: recovery codes, device linking/revocation

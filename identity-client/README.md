@@ -1,13 +1,15 @@
 # identity-client
 
 ## What?
-Browser-side identity for `@stevvvns` apps: an ECDSA device key for signing, plus IndexedDB-backed "accounts" (personas) you can switch between.
+This library provides a device signing key, a list of accounts, and some managment function for the accounts.
 
 ## Why?
-Accounts are personas — work, friends, family. Each carries a seed that drives the UI's look, so the context you're posting in stays visually distinct from the others.
+This supports local-first authentication. You are meant to maintain a list of accounts a device is allowed to perform as on the server, and use the signature of the device to prove the authz.
 
 ## How?
 `$ npm i @stevvvns/identity-client`
+
+This is mostly intended to use with `incomponent` library utilizing the store:
 
 ```javascript
 import { useIdentity } from '@stevvvns/identity-client';
@@ -20,4 +22,10 @@ await addAccount('work');
 const buffer = await sign({ text: 'hello' });
 ```
 
-For a non-reactive API, the default export `initIdentity()` returns `{ sign, accounts }`.
+If you're not using `incomponent`, you can use the default `{ sign, accounts }` export to build similar functionality.
+
+## TODO
+ * Include helpers for mitigations of local-first pitfalls: recovery codes, device linking/revocation
+ * Make account metadata customizable
+   * Currently includes a `name` that must be unique (for 1:1 device<->account you can just ignore the name), and a `seed` that is a random number used to generate recognizable avatars/color schemes for each account
+
