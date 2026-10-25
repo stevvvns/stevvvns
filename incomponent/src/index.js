@@ -117,8 +117,8 @@ export function ref(value) {
   return new Ref(value);
 }
 
-export function derive(cb, deps = [], dbg = false) {
-  return Ref.forDerived(cb, deps, dbg);
+export function derive(cb, deps = []) {
+  return Ref.forDerived(cb, deps);
 }
 
 const prefix = 'inc';
