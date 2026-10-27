@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "workspaces": [
+    "act",
     "components",
     "eslint-config",
     "incomponent",
@@ -11,6 +12,7 @@
     "identity-server",
     "migrate",
     "pixel-avatar",
+    "router",
     "wsapi-client",
     "wsapi-server"
   ],

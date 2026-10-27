@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Example</title>
+  <script type="module">
+import { setRoutes } from './dist/index.js';
+import { comp, ref, html } from 'https://cdn.jsdelivr.net/npm/@stevvvns/incomponent@0.1.0/dist/main.js';
+
+comp(function Readme() {
+  const text = ref('');
+  (async () => {
+    text.value = await (await fetch('./README.md')).text();
+  })();
+  return { text };
+}).template(el => html`<pre>${el.text}</pre>`);
+
+// <inc-link also has .replace={bool} and .params={obj}
+comp('App').template(html`
+  <nav>
+    <ul>
+      <li><inc-link to="home">home</inc-link></li>
+      <li><inc-link to="readme">readme</inc-link></li>
+      <li><inc-link to="about">about</inc-link></li>
+      <li><inc-link to="readme.nested">nested</inc-link></li>
+    </ul>
+  </nav>
+  <inc-router></inc-router>
+`).style(`
+  inc-link {
+    &::part(current) { font-weight: bold; }
+    &::part(link) {
+      color: red;
+    }
+    &::part(link):visited {
+      color: blue;
+    }
+  }
+`);
+
+setRoutes(
+  [
+    { name: 'home', path: '/', title: 'Example', template: html`<p>home</p>` },
+    { name: 'readme', path: '/readme', title: 'Read me', template: html`<inc-readme></inc-readme>`, children: [
+      { name: 'nested', path: '/nested', title: 'Nested Route', template: html`<p>nested</p>` }
+    ]},
+    { name: 'about', path: '/about', title: 'About', template: html`<p>about</p>` },
+  ],
+  // router5 createRouter options + { browser: router5-plugin-browser options }
+  { defaultRoute: 'readme', browser: { useHash: true } }
+);
+  </script>
+</head>
+<body>
+  <inc-app></inc-app>
+</body>
+</html>

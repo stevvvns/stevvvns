@@ -1,0 +1,32 @@
+{
+  "name": "@stevvvns/router",
+  "version": "0.0.2",
+  "type": "module",
+  "main": "./src/index.js",
+  "exports": {
+    ".": {
+      "import": "./src/index.js",
+      "default": "./src/index.js"
+    }
+  },
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "example": "npx serve",
+    "build": "npx esbuild --bundle --keep-names --format=esm --platform=browser --outfile=dist/index.js --minify src/index.js",
+    "pub": "npm publish --access=public"
+  },
+  "license": "MIT",
+  "description": "Router for @stevvvns/incomponent apps, built on router5.",
+  "dependencies": {
+    "@stevvvns/incomponent": "^0.1.2",
+    "router5": "^8.0.1",
+    "router5-plugin-browser": "^8.0.1"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.11"
+  }
+}

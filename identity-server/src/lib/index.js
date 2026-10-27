@@ -5,6 +5,18 @@ const { decode } = msgpack();
 const PUB_BYTES = 65; // has an extra constant byte
 const SIG_BYTES = 64;
 
+const UUID_V7 = /^[0-9a-f]{8}-[0-9a-f]{4}-([0-9a-f])[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function assertV7(account) {
+  if (account === undefined) {
+    return;
+  }
+  const version = UUID_V7.exec(account)?.[1];
+  if (version !== '7') {
+    throw new Error('account id is not a version 7 uuid');
+  }
+}
+
 export async function verify(buffer) {
   if (buffer.byteLength < PUB_BYTES + SIG_BYTES) {
     throw new Error('buffer too short');
@@ -33,8 +45,11 @@ export async function verify(buffer) {
     throw new Error('signature verification failed');
   }
 
+  const payload = decode(Buffer.from(packed));
+  assertV7(payload?._account);
+
   return {
     publicKey: pub,
-    payload: decode(Buffer.from(packed))
+    payload
   };
 }
