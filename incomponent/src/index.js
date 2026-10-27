@@ -16,10 +16,10 @@ export function initStores(ast = false) {
 }
 
 export function store(fn) {
-  return function use() {
+  return function use(...args) {
     if (!asyncStore) {
       if (!fn._globalInst) {
-        fn._globalInst = fn();
+        fn._globalInst = fn(...args);
       }
       return fn._globalInst;
     }
@@ -28,7 +28,7 @@ export function store(fn) {
       st._storeCache = new Map();
     }
     if (!st._storeCache.has(fn)) {
-      st._storeCache.set(fn, fn());
+      st._storeCache.set(fn, fn(...args));
     }
 
     return st._storeCache.get(fn);

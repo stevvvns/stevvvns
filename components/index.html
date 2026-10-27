@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script type="module" src="./dist/button.js"></script>
+  <script type="module" src="./dist/emoji-picker.js"></script>
+  <script type="module" src="./dist/markdown-editor.js"></script>
+  <script type="module" src="./dist/markdown-renderer.js"></script>
+  <script type="module" src="./dist/tooltip.js"></script>
+  <script type="module" src="./dist/modal.js"></script>
+  <script type="module" src="./dist/tabs.js"></script>
+  <script type="module" src="./dist/options.js"></script>
+  <script type="module" src="./dist/text-input.js"></script>
+  <script type="module" src="./dist/demo.js"></script>
+  <style type="text/css">
+body {
+  --primary-color: #444;
+}
+h2 {
+  font-family: monospace;
+}
+h3 {
+  margin-bottom: 3px;
+  font-size: medium;
+}
+body {
+  color: #333;
+  background: #f3f3f3;
+  padding: 2em;
+}
+@media (prefers-color-scheme: dark) {
+  body {
+    background: #121212;
+    color: #f3f3f3;
+  }
+}
+  </style>
+</head>
+<body>
+  <h1>inc-library</h1>
+  <input type="color" value="#666666" />
+  <h2>&lt;inc-lib-button> (&amp; &lt;inc-lib-tooltip>)</h2>
+  <h3>primary</h3>
+  <inc-lib-tooltip text="top" placement="top">
+    <inc-lib-button type="primary">Click</inc-lib-button>
+  </inc-lib-tooltip>
+  <inc-lib-tooltip text="right" placement="right">
+    <inc-lib-button type="primary" disabled="disabled">No click</inc-lib-button>
+  </inc-lib-tooltip>
+  <h3>secondary</h3>
+  <inc-lib-tooltip text="bottom" placement="bottom">
+    <inc-lib-button>Click</inc-lib-button>
+  </inc-lib-tooltip>
+  <inc-lib-tooltip text="auto" placement="auto">
+    <inc-lib-button disabled="disabled">No click</inc-lib-button>
+  </inc-lib-tooltip>
+  <h2>&lt;inc-lib-emoji-picker></h2>
+  <inc-lib-emoji-picker save-last="3" test></inc-lib-emoji-picker>
+  <h2>&lt;inc-lib-markdown-editor></h2>
+  <inc-lib-markdown-editor placeholder="Markdown goes here" initial-value="# writing markdown
+ * check out [the cheatsheet](https://www.markdownguide.org/cheat-sheet/)
+ * give it a shot
+ * you can paste or drop images
+* ![webcomponents logo](./webcomponents.svg)"></inc-lib-markdown-editor>
+  <h2>&lt;inc-lib-markdown-renderer></h2>
+  <div style="max-width: 80ch">
+    <inc-lib-markdown-renderer post-process="post-process" markdown="# writing markdown
+ * check out [the cheatsheet](https://www.markdownguide.org/cheat-sheet/)
+ * give it a shot
+ * you can paste or drop images
+* ![webcomponents logo](./webcomponents.svg)"></inc-lib-markdown-renderer>
+  </div>
+  <h2>&lt;inc-lib-modal></h2>
+  <inc-toggle-modal></inc-toggle-modal>
+  <h2>&lt;inc-lib-options></h2>
+  <inc-lib-options data="[{&quot;value&quot;: &quot;A&quot;, &quot;label&quot;: &quot;Option A&quot;}, {&quot;value&quot;: &quot;B&quot;, &quot;label&quot;: &quot;Option B&quot;}]"></inc-lib-options>
+  <h2>&lt;inc-lib-tabs></h2>
+  <inc-lib-tabs>
+    <inc-lib-tab label="Tab A">Tab A content</inc-lib-tab>
+    <inc-lib-tab label="Tab B">Tab B content</inc-lib-tab>
+  </inc-lib-tabs>
+</body>
+</html>

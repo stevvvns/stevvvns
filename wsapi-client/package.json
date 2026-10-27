@@ -1,0 +1,29 @@
+{
+  "name": "@stevvvns/wsapi-client",
+  "version": "0.0.1",
+  "type": "module",
+  "main": "./src/index.js",
+  "module": "./src/index.js",
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "import": "./src/index.js",
+      "default": "./src/index.js"
+    }
+  },
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "license": "MIT",
+  "scripts": {
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@stevvvns/incomponent": "^0.1.2",
+    "msgpack5": "^6.1.0"
+  }
+}

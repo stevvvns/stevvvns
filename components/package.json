@@ -1,0 +1,30 @@
+{
+  "name": "@stevvvns/components",
+  "version": "0.0.5",
+  "type": "module",
+  "files": [
+    "src",
+    "vendor"
+  ],
+  "exports": {
+    "./*": "./src/*.js"
+  },
+  "scripts": {
+    "demo": "node serve.js",
+    "pub": "npm publish --access=public"
+  },
+  "author": "",
+  "license": "MIT",
+  "description": "",
+  "dependencies": {
+    "@codemirror/lang-markdown": "^6.4.0",
+    "@stevvvns/incomponent": "^0.1.2",
+    "codemirror": "^6.0.2",
+    "dompurify": "^3.3.0",
+    "marked": "^16.4.1",
+    "tippy.js": "^6.3.7"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.11"
+  }
+}

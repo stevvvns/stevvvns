@@ -3,15 +3,22 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "workspaces": ["incomponent", "identity-client", "identity-server", "migrate", "pixel-avatar"],
+  "workspaces": [
+    "components",
+    "eslint-config",
+    "incomponent",
+    "identity-client",
+    "identity-server",
+    "migrate",
+    "pixel-avatar",
+    "wsapi-client",
+    "wsapi-server"
+  ],
   "scripts": {
-    "lint": "prettier '*/src/**/*.{js,mjs,cjs,json,html}' --write; eslint '*/src/**/*.{js,mjs,cjs}' --fix",
-    "lint:check": "eslint '*/src/**/*.{js,mjs,cjs}' && prettier '*/src/**/*.{js,mjs,cjs,json,html}' --check"
+    "lint": "eslint '*/src/**/*.{js,mjs,cjs}' --fix",
+    "lint:check": "eslint '*/src/**/*.{js,mjs,cjs}'"
   },
   "devDependencies": {
-    "@eslint/js": "^10.0.1",
-    "eslint": "^10.13.0",
-    "globals": "^17.13.0",
-    "prettier": "^3.9.10"
+    "eslint": "^10.13.0"
   }
 }

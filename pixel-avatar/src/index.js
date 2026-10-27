@@ -216,7 +216,9 @@ export function randpix(options) {
   for (let i = 0; i < pattern.length; i++) {
     for (let j = 0; j < pattern[i].length; j++) {
       const color = pattern[i][j];
-      if (color.includes(-1)) continue;
+      if (color.includes(-1)) {
+        continue;
+      }
       ctx.fillStyle = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
       ctx.fillRect(j * scale, i * scale, scale, scale);
     }

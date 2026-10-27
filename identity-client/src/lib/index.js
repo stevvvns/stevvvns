@@ -199,23 +199,31 @@ class Accounts extends IndexedStore {
 
   async update(id, acc) {
     const account = await this.getOne('accounts', id);
-    if (!account) throw new Error(`account ${id} not found`);
+    if (!account) {
+      throw new Error(`account ${id} not found`);
+    }
     return this.putOne('accounts', { ...account, ...acc, id });
   }
 
   async reroll(id) {
     const account = await this.getOne('accounts', id);
-    if (!account) throw new Error(`account ${id} not found`);
+    if (!account) {
+      throw new Error(`account ${id} not found`);
+    }
     return this.putOne('accounts', { ...account, seed: randomUint32() });
   }
 
   async move(id, idx) {
     const list = await this.getList();
     const from = list.findIndex((account) => account.id === id);
-    if (from === -1) throw new Error(`account ${id} not found`);
+    if (from === -1) {
+      throw new Error(`account ${id} not found`);
+    }
 
     const to = Math.max(0, Math.min(idx, list.length - 1));
-    if (from === to) return;
+    if (from === to) {
+      return;
+    }
 
     const [moved] = list.splice(from, 1);
     list.splice(to, 0, moved);
