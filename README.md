@@ -1,6 +1,5 @@
 - [act](./act/README.md) — a small actor framework (fork + remote processes).
 - [components](./components/README.md) — reusable web components (buttons, modals, tabs, markdown editor).
-- [eslint-config](./eslint-config/README.md) — shared house-style ESLint config.
 - [identity-client](./identity-client/README.md) — browser-side identity, personas, and signing.
 - [identity-server](./identity-server/README.md) — server-side signature verification.
 - [incomponent](./incomponent/README.md) — web components: Vue's composition API with lit-html rendering.
