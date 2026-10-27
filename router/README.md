@@ -2,7 +2,7 @@
 
 ## What?
 
-This is a router for apps that use [@stevvvns/incomponent](https://github.com/stevvvns/incomponent) based on [router5](https://github.com/router5/router5).
+This is a router for apps that use [@stevvvns/incomponent](../incomponent/README.md) based on [router5](https://github.com/router5/router5).
 
 ## Why?
 

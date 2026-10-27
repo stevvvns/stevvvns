@@ -1,14 +1,11 @@
-# srs
-
-A monorepo of small, personal `@stevvvns/*` packages.
-
-## Packages
-
+- [act](./act/README.md) — a small actor framework (fork + remote processes).
 - [components](./components/README.md) — reusable web components (buttons, modals, tabs, markdown editor).
-- [incomponent](./incomponent/README.md) — web components: Vue's composition API with lit-html rendering.
+- [eslint-config](./eslint-config/README.md) — shared house-style ESLint config.
 - [identity-client](./identity-client/README.md) — browser-side identity, personas, and signing.
 - [identity-server](./identity-server/README.md) — server-side signature verification.
+- [incomponent](./incomponent/README.md) — web components: Vue's composition API with lit-html rendering.
 - [migrate](./migrate/README.md) — a small database migration utility.
-- [pixel-avatar](./pixel-avatar/README.md) — a semi-opinionated for of [randpix](https://github.com/LIMPIX31/randpix), which generates some random avatars like github's but cooler-looking and more customizable.
+- [pixel-avatar](./pixel-avatar/README.md) — a semi-opinionated fork of [randpix](https://github.com/LIMPIX31/randpix), which generates some random avatars like github's but cooler-looking and more customizable.
+- [router](./router/README.md) — a router for incomponent apps, built on router5.
 - [wsapi-client](./wsapi-client/README.md) — a resilient WebSocket client with automatic reconnection and backoff.
 - [wsapi-server](./wsapi-server/README.md) — server-side WebSocket API.

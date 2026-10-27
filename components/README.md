@@ -1,5 +1,5 @@
 # What?
-This is a collection of some generally reusable components made with [@stevvvns/incomponent](https://github.com/stevvvns/incomponent) and usable as native webcomponents in any framework
+This is a collection of some generally reusable components made with [@stevvvns/incomponent](../incomponent/README.md) and usable as native webcomponents in any framework
 
 ![screenshot showing some simple and boring webcomponents](screenshot.png "waou")
 

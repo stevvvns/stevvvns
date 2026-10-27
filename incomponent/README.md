@@ -132,5 +132,5 @@ To emit your own events, call `.emit(eventName, detail)` on the component instan
 
 ### Resources
 
- * There is a configuration of [router5](https://github.com/router5/router5) you can use for routing, [@stevvvns/inc-router](https://github.com/stevvvns/inc-router).
+ * There is a configuration of [router5](https://github.com/router5/router5) you can use for routing, [@stevvvns/router](../router/README.md).
  * There are a handful of generic components made with incomponent, [@stevvvns/components](../components/README.md). Thanks to the magic of native components you don't have to know shit about this library to use these, but there are some more usage examples to be found here if you're interested.
