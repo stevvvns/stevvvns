@@ -1,8 +1,9 @@
 import msgpack from 'msgpack5';
+import crypto from 'node:crypto';
 
 const { decode } = msgpack();
 
-const PUB_BYTES = 65; // has an extra constant byte
+const PUB_BYTES = 33; // compressed SEC1 point: 0x02/0x03 prefix + X (32B)
 const SIG_BYTES = 64;
 
 const UUID_V7 = /^[0-9a-f]{8}-[0-9a-f]{4}-([0-9a-f])[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -26,9 +27,18 @@ export async function verify(buffer) {
   const sig = buffer.subarray(PUB_BYTES, PUB_BYTES + SIG_BYTES);
   const packed = buffer.subarray(PUB_BYTES + SIG_BYTES);
 
+  // WebCrypto only accepts uncompressed points, so decompress before importing.
+  const raw = crypto.ECDH.convertKey(
+    Buffer.from(pub),
+    'prime256v1',
+    undefined,
+    undefined,
+    'uncompressed'
+  );
+
   const key = await crypto.subtle.importKey(
     'raw',
-    pub,
+    raw,
     { name: 'ECDSA', namedCurve: 'P-256' },
     true,
     ['verify']

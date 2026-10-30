@@ -1,6 +1,7 @@
 import js from '@eslint/js';
 import globals from 'globals';
 import stylistic from '@stylistic/eslint-plugin';
+import lit from 'eslint-plugin-lit';
 
 export function houseStyle({ nodeGlobs = [] } = {}) {
   const config = [
@@ -11,7 +12,8 @@ export function houseStyle({ nodeGlobs = [] } = {}) {
     {
       files: ['**/*.{js,mjs,cjs}'],
       plugins: {
-        '@stylistic': stylistic
+        '@stylistic': stylistic,
+        lit
       },
       languageOptions: {
         ecmaVersion: 'latest',
@@ -55,10 +57,27 @@ export function houseStyle({ nodeGlobs = [] } = {}) {
         '@stylistic/arrow-spacing': ['error', { before: true, after: true }],
         '@stylistic/eol-last': ['error', 'always'],
         '@stylistic/no-trailing-spaces': 'error',
-        '@stylistic/no-multiple-empty-lines': [
-          'error',
-          { max: 1, maxEOF: 0, maxBOF: 0 }
-        ]
+        '@stylistic/no-multiple-empty-lines': ['error', { max: 1, maxEOF: 0, maxBOF: 0 }],
+
+        // Lit template rules. We use lit-html's `html` (re-exported via
+        // @stevvvns/incomponent), so the plugin's tag-name detection applies
+        // directly. LitElement/decorator-specific rules (lifecycle-super,
+        // prefer-query-decorators, etc.) are intentionally omitted.
+        'lit/attribute-names': 'error',
+        'lit/attribute-value-entities': 'error',
+        'lit/binding-positions': 'error',
+        'lit/no-duplicate-template-bindings': 'error',
+        'lit/no-invalid-escape-sequences': 'error',
+        'lit/no-invalid-html': 'error',
+        'lit/no-legacy-template-syntax': 'error',
+        'lit/no-template-arrow': 'off', // inline handler closures are idiomatic here
+        'lit/no-template-bind': 'error',
+        'lit/no-template-map': 'error',
+        'lit/no-useless-template-literals': 'error',
+        'lit/no-value-attribute': 'error',
+        'lit/prefer-nothing': 'error',
+        'lit/quoted-expressions': 'error',
+        'lit/value-after-constraints': 'error'
       }
     }
   ];

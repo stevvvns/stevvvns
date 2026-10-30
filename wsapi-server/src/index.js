@@ -29,7 +29,7 @@ function camelCaseBody(body) {
   return body;
 }
 
-export default async function attach(app, { path, log }) {
+export default async function attach(app, { path, log, verifyAccount = () => {} }) {
   const actions = {};
   let resolveReady;
   const ready = new Promise((resolve) => {
@@ -41,17 +41,30 @@ export default async function attach(app, { path, log }) {
     let data;
     try {
       data = await verify(msg);
-    } catch {
-      // ignore
+    } catch (ex) {
+      log?.error?.(ex);
     }
-    if (!data?.payload || !data.payload._txId || !data.payload._account || !data.payload.mtd || !data.payload.arg) {
-      ws.send(
-        mpack({ txId: data?.payload?._txId, error: 'transport error' })
-      );
-      console.error('transport error');
+    if (
+      !data?.payload ||
+      !data.payload._txId ||
+      !data.payload._account ||
+      !data.payload.mtd ||
+      !data.payload.arg
+    ) {
+      ws.send(mpack({ txId: data?.payload?._txId, error: 'transport error' }));
+      log?.error?.('transport error');
       return;
     }
     const reply = (msg) => ws.send(mpack({ txId: data.payload._txId, ...msg }));
+    try {
+      await verifyAccount(data.publicKey, data.payload._account);
+    } catch (ex) {
+      log?.error?.(ex.message, { ex });
+      reply({
+        error: ex instanceof PublicError ? ex.message : 'forbidden'
+      });
+      return;
+    }
 
     if (!(data.payload.mtd in actions)) {
       reply({ error: 'unknown method' });
@@ -63,13 +76,9 @@ export default async function attach(app, { path, log }) {
       return;
     }
     try {
-      reply(
-        {
-          value: camelCaseBody(
-            await actions[data.payload.mtd].impl(parsedArg.right)
-          )
-        }
-      );
+      reply({
+        value: camelCaseBody(await actions[data.payload.mtd].impl(parsedArg.right))
+      });
     } catch (ex) {
       log?.error?.(ex.message, { ex });
       reply({
@@ -78,11 +87,6 @@ export default async function attach(app, { path, log }) {
     }
   }
 
-  // Handle upgrades via the server's 'upgrade' event instead of koa-easy-ws's
-  // in-process (noServer) upgrade, so the request is marked complete and Node's
-  // requestTimeout (default 5m) doesn't kill the connection. Wrapped
-  // synchronously because the caller may start listening before this async
-  // function finishes.
   const listen = app.listen.bind(app);
   app.listen = (...args) => {
     const server = listen(...args);

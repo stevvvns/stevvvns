@@ -16,6 +16,11 @@
   ],
   "license": "MIT",
   "description": "Server-side WebSocket API for @stevvvns/wsapi-client.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stevvvns/stevvvns.git",
+    "directory": "wsapi-server"
+  },
   "dependencies": {
     "fp-ts": "^2.16.11",
     "io-ts": "^2.2.22",

@@ -19,9 +19,7 @@ export const useApi = store(function ApiStore(url, opts = {}) {
       'color: gray',
       'font-weight: bold',
       'color: #555',
-      ...(isError
-        ? ['color: darkred; font-weight: bold', 'color: gray']
-        : [])
+      ...(isError ? ['color: darkred; font-weight: bold', 'color: gray'] : [])
     );
   }
 
@@ -74,13 +72,14 @@ export const useApi = store(function ApiStore(url, opts = {}) {
         return function callApi(arg = {}) {
           return new Promise((resolve, reject) => {
             const txId = crypto.randomUUID();
-            const timer = timeout > 0
-              ? setTimeout(() => {
-                if (inFlight.delete(txId)) {
-                  reject(new Error(`request ${String(mtd)} timed out`));
-                }
-              }, timeout)
-              : null;
+            const timer =
+              timeout > 0
+                ? setTimeout(() => {
+                  if (inFlight.delete(txId)) {
+                    reject(new Error(`request ${String(mtd)} timed out`));
+                  }
+                }, timeout)
+                : null;
             inFlight.set(txId, { resolve, reject, timer });
             msgLog(txId, mtd, arg);
             ident

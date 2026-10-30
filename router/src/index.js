@@ -51,16 +51,11 @@ comp(
     const go = derive(() => {
       return (evt) => {
         evt.preventDefault();
-        navRef.value(
-          to.value,
-          params.value,
-          { replace: el.replace.value },
-          (err) => {
-            if (err) {
-              console.error(err);
-            }
+        navRef.value(to.value, params.value, { replace: el.replace.value }, (err) => {
+          if (err) {
+            console.error(err);
           }
-        );
+        });
       };
     }, [navRef]);
     const url = derive(() => {

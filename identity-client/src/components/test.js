@@ -163,10 +163,7 @@ comp(function IdentityTest() {
   (el) => html`
     <inc-accounts></inc-accounts>
     <h2>Signing</h2>
-    <textarea
-      placeholder="Message to echo"
-      @change=${(evt) => (el.msg.value = evt.target.value)}
-    >
+    <textarea placeholder="Message to echo" @change=${(evt) => (el.msg.value = evt.target.value)}>
 ${el.msg}</textarea>
     <p><button @click=${el.submit}>submit</button></p>
     ${el.resp ? html`<p>server says: ${el.resp}</p>` : ''}

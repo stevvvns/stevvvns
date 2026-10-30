@@ -106,8 +106,7 @@ export class DurableSocket extends EventEmitter {
       this.connect();
     }, this.reconnectDelay);
     this.reconnectDelay =
-      Math.min(this.reconnectDelay * this.factor, this.maxDelay) +
-      (0.8 + Math.random() * 0.4);
+      Math.min(this.reconnectDelay * this.factor, this.maxDelay) + (0.8 + Math.random() * 0.4);
   }
 }
 
@@ -195,9 +194,7 @@ export default async function act(config) {
                   return reject('mailbox full');
                 }
                 if (checkConnected && !procs[name].connected) {
-                  for (const [id, { reject }] of Object.entries(
-                    dispatch[name]
-                  )) {
+                  for (const [id, { reject }] of Object.entries(dispatch[name])) {
                     if (timeouts[id]) {
                       clearTimeout(timeouts[id]);
                       delete timeouts[id];
@@ -208,9 +205,7 @@ export default async function act(config) {
                   procs[name] = fork(settings.module, [], {
                     serialization: 'advanced'
                   });
-                  procs[name].on('message', (msg) =>
-                    handleResponse(name, decode(msg))
-                  );
+                  procs[name].on('message', (msg) => handleResponse(name, decode(msg)));
                   return reject('disconnected');
                 }
                 dispatch[name][id] = { resolve, reject };

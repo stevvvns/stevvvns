@@ -5,6 +5,8 @@ export { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 export { unsafeSVG } from 'lit-html/directives/unsafe-svg.js';
 export { repeat } from 'lit-html/directives/repeat.js';
 
+export function css(strings: TemplateStringsArray, ...values: any[]): string;
+
 export interface Ref<T> {
   value: T;
   mut(cb: (draft: T) => T | void): void;

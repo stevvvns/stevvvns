@@ -17,6 +17,11 @@
   ],
   "license": "MIT",
   "description": "A small actor framework (fork + remote) for @stevvvns.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stevvvns/stevvvns.git",
+    "directory": "act"
+  },
   "dependencies": {
     "msgpack5": "^6.1.0",
     "ms": "^2.1.3"

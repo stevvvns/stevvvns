@@ -23,9 +23,7 @@ function defaultShouldRetry(evt) {
 }
 
 function closeError(evt) {
-  return new Error(
-    `WebSocket closed (${evt.code})${evt.reason ? `: ${evt.reason}` : ''}`
-  );
+  return new Error(`WebSocket closed (${evt.code})${evt.reason ? `: ${evt.reason}` : ''}`);
 }
 
 export function createConnection(url, opts = {}) {
@@ -271,9 +269,7 @@ export function createConnection(url, opts = {}) {
     const target = socket.value;
     if (!target) {
       // The constructor threw; a backoff retry is scheduled, but this send fails.
-      return Promise.reject(
-        error.value ?? new Error('WebSocket failed to open')
-      );
+      return Promise.reject(error.value ?? new Error('WebSocket failed to open'));
     }
     return waitForSocket(target).then(() => {
       const s = socket.value;

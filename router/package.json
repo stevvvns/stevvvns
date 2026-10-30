@@ -21,6 +21,11 @@
   },
   "license": "MIT",
   "description": "Router for @stevvvns/incomponent apps, built on router5.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stevvvns/stevvvns.git",
+    "directory": "router"
+  },
   "dependencies": {
     "@stevvvns/incomponent": "^0.1.2",
     "router5": "^8.0.1",

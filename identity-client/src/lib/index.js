@@ -115,11 +115,9 @@ export class KeyStore extends IndexedStore {
       throw new Error('browser is missing core capabilities');
     }
 
-    const testKey = await crypto.subtle.generateKey(
-      { name: 'ECDSA', namedCurve: 'P-256' },
-      false,
-      ['sign']
-    );
+    const testKey = await crypto.subtle.generateKey({ name: 'ECDSA', namedCurve: 'P-256' }, false, [
+      'sign'
+    ]);
 
     const channel = new MessageChannel();
     channel.port1.postMessage(testKey);
@@ -128,14 +126,25 @@ export class KeyStore extends IndexedStore {
 
 const ECDSA = { name: 'ECDSA', namedCurve: 'P-256' };
 
+// WebCrypto exports EC public keys as uncompressed SEC1 points
+// (0x04 || X || Y, 65B for P-256). Compress to the 33B form
+// (0x02/0x03 || X) so the key is smaller on the wire and in storage.
+function compressPub(raw) {
+  if (raw.length !== 65 || raw[0] !== 0x04) {
+    throw new Error('expected an uncompressed P-256 public key');
+  }
+  const out = new Uint8Array(33);
+  out[0] = (raw[64] & 1) === 0 ? 0x02 : 0x03;
+  out.set(raw.subarray(1, 33), 1);
+  return out;
+}
+
 async function genKey() {
   // Generate extractable so we can export the public key; the private key is
   // re-imported non-extractable so it can't leave the browser.
   const pair = await crypto.subtle.generateKey(ECDSA, true, ['sign', 'verify']);
 
-  const pubRaw = new Uint8Array(
-    await crypto.subtle.exportKey('raw', pair.publicKey)
-  );
+  const pubRaw = new Uint8Array(await crypto.subtle.exportKey('raw', pair.publicKey));
   const privateKey = await crypto.subtle.importKey(
     'pkcs8',
     await crypto.subtle.exportKey('pkcs8', pair.privateKey),
@@ -297,6 +306,7 @@ export default async function initIdentity(log = () => {}) {
   } else {
     log('recovered device key');
   }
+  const devicePubCompressed = compressPub(devicePub);
   async function sign(payload) {
     const packed = mpack(payload);
     const sig = new Uint8Array(
@@ -310,11 +320,11 @@ export default async function initIdentity(log = () => {}) {
       )
     );
 
-    // <public key (65B)><signature (64B)><msgpack payload>
-    const out = new Uint8Array(devicePub.length + sig.length + packed.length);
-    out.set(devicePub, 0);
-    out.set(sig, devicePub.length);
-    out.set(packed, devicePub.length + sig.length);
+    // <public key (33B, compressed)><signature (64B)><msgpack payload>
+    const out = new Uint8Array(devicePubCompressed.length + sig.length + packed.length);
+    out.set(devicePubCompressed, 0);
+    out.set(sig, devicePubCompressed.length);
+    out.set(packed, devicePubCompressed.length + sig.length);
     return out;
   }
   const accounts = new Accounts();

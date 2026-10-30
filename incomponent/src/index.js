@@ -1,4 +1,4 @@
-import { html, svg, render } from 'lit-html';
+import { html, svg, render, nothing } from 'lit-html';
 import { classMap } from 'lit-html/directives/class-map.js';
 import { styleMap } from 'lit-html/directives/style-map.js';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
@@ -8,6 +8,12 @@ import { repeat } from 'lit-html/directives/repeat.js';
 const cx = classMap;
 const sx = styleMap;
 export { html, svg, cx, sx, unsafeHTML, unsafeSVG, repeat };
+
+// Tagged template that returns the composed string unchanged. The `css` tag
+// exists only so tooling (prettier, editors) treats the contents as CSS.
+export function css(strings, ...values) {
+  return String.raw({ raw: strings.raw }, ...values);
+}
 
 let asyncStore;
 
@@ -125,7 +131,7 @@ const prefix = 'inc';
 export function comp(setup, observeAttrs = []) {
   const camelName = typeof setup === 'string' ? setup : setup.name;
   const name = camelName.replace(/([A-Z])/g, '-$1').toLowerCase();
-  let template = () => html``;
+  let template = () => nothing;
   const styleSheet = new CSSStyleSheet();
   let initializer = () => {};
   const dashedAttrs = observeAttrs.map((name) =>
@@ -146,10 +152,7 @@ export function comp(setup, observeAttrs = []) {
         this.deriveCleanups[id] = cb;
       };
       this.props = {
-        ...dashedAttrs.reduce(
-          (acc, attr) => ({ ...acc, [attr]: this.getAttribute(attr) }),
-          {}
-        ),
+        ...dashedAttrs.reduce((acc, attr) => ({ ...acc, [attr]: this.getAttribute(attr) }), {}),
         ...((typeof setup === 'string' ? () => {} : setup)(this) ?? {})
       };
       Ref.registerCleanups = null;
@@ -213,11 +216,7 @@ export function comp(setup, observeAttrs = []) {
     }
 
     attributeChangedCallback(prop, _oldVal, val) {
-      console.log('acc', prop, val);
-      for (const name of [
-        prop,
-        prop.replace(/-(.)/g, (ma) => ma[1].toUpperCase())
-      ]) {
+      for (const name of [prop, prop.replace(/-(.)/g, (ma) => ma[1].toUpperCase())]) {
         if (this.props[name] instanceof Ref) {
           this.props[name].value = val;
         } else {
@@ -258,9 +257,7 @@ export function comp(setup, observeAttrs = []) {
     }
 
     emit(evt, detail = {}) {
-      this.dispatchEvent(
-        new CustomEvent(evt, { bubbles: true, composed: true, detail })
-      );
+      this.dispatchEvent(new CustomEvent(evt, { bubbles: true, composed: true, detail }));
     }
   };
   try {

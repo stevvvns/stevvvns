@@ -19,6 +19,11 @@
   ],
   "sideEffects": false,
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stevvvns/stevvvns.git",
+    "directory": "wsapi-client"
+  },
   "scripts": {
     "test": "node --test"
   },

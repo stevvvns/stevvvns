@@ -17,10 +17,11 @@
     "wsapi-server"
   ],
   "scripts": {
-    "lint": "eslint '*/src/**/*.{js,mjs,cjs}' --fix",
-    "lint:check": "eslint '*/src/**/*.{js,mjs,cjs}'"
+    "lint:check": "eslint '*/src/**/*.{js,mjs,cjs}'",
+    "lint": "prettier --write --log-level warn '*/src/**/*.{js,mjs,cjs}' && eslint '*/src/**/*.{js,mjs,cjs}' --fix"
   },
   "devDependencies": {
-    "eslint": "^10.13.0"
+    "eslint": "^10.13.0",
+    "prettier": "^3.9.10"
   }
 }

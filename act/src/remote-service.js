@@ -7,9 +7,7 @@ import { frame, createFrameParser } from './framing.js';
 const { encode, decode } = msgpack();
 
 if (process.argv.length !== 3) {
-  console.error(
-    'you must provide a path to a configuration file as an argument'
-  );
+  console.error('you must provide a path to a configuration file as an argument');
   process.exit(1);
 }
 const config = (await import(resolve(process.cwd(), process.argv[2]))).default;
@@ -60,9 +58,7 @@ createServer((sock) => {
 
     if (op === 'ensure') {
       const ok = actors[data] !== undefined;
-      sock.write(
-        frame(encode(['ensure', { status: ok ? 'ok' : 'na', name: data }]))
-      );
+      sock.write(frame(encode(['ensure', { status: ok ? 'ok' : 'na', name: data }])));
       if (ok) {
         setForward(data);
       }

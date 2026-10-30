@@ -18,6 +18,11 @@
   ],
   "sideEffects": true,
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stevvvns/stevvvns.git",
+    "directory": "incomponent"
+  },
   "scripts": {
     "example": "npx serve",
     "pub": "npm publish --access=public",

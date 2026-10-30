@@ -8,9 +8,15 @@
     ".": "./src/index.js"
   },
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stevvvns/stevvvns.git",
+    "directory": "eslint-config"
+  },
   "dependencies": {
     "@eslint/js": "^10.0.1",
     "@stylistic/eslint-plugin": "^5.10.0",
+    "eslint-plugin-lit": "^2.3.1",
     "globals": "^17.13.0"
   }
 }

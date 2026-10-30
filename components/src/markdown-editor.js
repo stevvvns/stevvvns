@@ -1,11 +1,8 @@
-import { comp, html, ref, unsafeSVG } from '@stevvvns/incomponent';
-import { EditorView, keymap, placeholder } from '@codemirror/view';
-import { EditorState } from '@codemirror/state';
+import { comp, css, html, ref, repeat, unsafeSVG } from '@stevvvns/incomponent';
+import { Decoration, EditorView, keymap, placeholder, ViewPlugin } from '@codemirror/view';
+import { EditorState, RangeSetBuilder } from '@codemirror/state';
 import { defaultKeymap, history, historyKeymap } from '@codemirror/commands';
-import {
-  syntaxHighlighting,
-  defaultHighlightStyle
-} from '@codemirror/language';
+import { defaultHighlightStyle, syntaxHighlighting, syntaxTree } from '@codemirror/language';
 import { markdown, markdownLanguage } from '@codemirror/lang-markdown';
 
 import './tooltip.js';
@@ -15,6 +12,48 @@ import './emoji-picker.js';
 import imageIcon from './icons/image.svg';
 import emojiIcon from './icons/emoji.svg';
 
+// Dim markdown formatting markers (kept visible, just de-emphasized).
+const markerDecoration = Decoration.mark({ class: 'cm-md-marker' });
+
+const markdownMarkerNodes = new Set([
+  'HeaderMark',
+  'QuoteMark',
+  'ListMark',
+  'LinkMark',
+  'EmphasisMark',
+  'CodeMark'
+]);
+
+function markdownMarkerDecorations(view) {
+  const builder = new RangeSetBuilder();
+  for (const { from, to } of view.visibleRanges) {
+    syntaxTree(view.state).iterate({
+      from,
+      to,
+      enter: (node) => {
+        if (markdownMarkerNodes.has(node.name)) {
+          builder.add(node.from, node.to, markerDecoration);
+        }
+      }
+    });
+  }
+  return builder.finish();
+}
+
+const dimMarkdownMarkers = ViewPlugin.fromClass(
+  class {
+    constructor(view) {
+      this.decorations = markdownMarkerDecorations(view);
+    }
+    update(update) {
+      if (update.docChanged || update.viewportChanged) {
+        this.decorations = markdownMarkerDecorations(update.view);
+      }
+    }
+  },
+  { decorations: (v) => v.decorations }
+);
+
 async function sha256(data) {
   const hashed = await crypto.subtle.digest('SHA-256', data);
   return toB64(hashed);
@@ -22,9 +61,7 @@ async function sha256(data) {
 
 function toB64(u8) {
   const bytes = u8 instanceof ArrayBuffer ? new Uint8Array(u8) : u8;
-  return btoa(
-    bytes.reduce((data, byte) => data + String.fromCharCode(byte), '')
-  );
+  return btoa(bytes.reduce((data, byte) => data + String.fromCharCode(byte), ''));
 }
 
 function toDataUrl(format, data) {
@@ -43,7 +80,6 @@ function assertImageRenders(format, data) {
 comp(
   function LibMarkdownEditor() {
     const editor = ref();
-    const text = ref('');
     const transferErrors = ref([]);
     const showEmojiPicker = ref(false);
 
@@ -55,7 +91,6 @@ comp(
     }
     return {
       editor,
-      text,
       placeholder: 'Markdown',
       initialValue: '',
       transferErrors,
@@ -67,7 +102,7 @@ comp(
 )
   .init((el) => {
     const isTransferring = ref(false);
-    el.text.value = el.initialValue;
+    let text = el.initialValue;
 
     function processFiles(files, cm) {
       el.transferErrors.value = [];
@@ -118,7 +153,7 @@ comp(
     }
     const prnt = el.shadowRoot.querySelector('#prnt');
     const editor = new EditorView({
-      doc: el.text.value,
+      doc: text,
       extensions: [
         placeholder(el.placeholder),
         history(),
@@ -127,10 +162,11 @@ comp(
         markdown({
           base: markdownLanguage
         }),
+        dimMarkdownMarkers,
         EditorView.updateListener.of((upd) => {
           if (upd.docChanged) {
-            el.text.value = editor.state.doc.toString();
-            el.emit('change', { value: el.text.value });
+            text = editor.state.doc.toString();
+            el.emit('change', { value: text });
           }
         }),
         EditorState.transactionFilter.of((tr) => {
@@ -141,10 +177,7 @@ comp(
         }),
         EditorView.domEventHandlers({
           paste(evt, cm) {
-            if (
-              evt.clipboardData instanceof DataTransfer &&
-              evt.clipboardData.files.length > 0
-            ) {
+            if (evt.clipboardData instanceof DataTransfer && evt.clipboardData.files.length > 0) {
               evt.preventDefault();
               processFiles(evt.clipboardData.files, cm);
             }
@@ -171,103 +204,121 @@ comp(
   })
   .template(
     (el) =>
-      html`
-        <div id="prnt">
+      html`<div id="prnt">
           <div id="add-special">
             <label for="upload-image">
               <input id="upload-image" type="file" accept="image/*" multiple />
               <inc-lib-tooltip placement="bottom" text="Insert images">
-                <inc-lib-icon-button class="image-button">${unsafeSVG(imageIcon)}</inc-lib-icon-button>
+                <inc-lib-icon-button class="image-button"
+                  >${unsafeSVG(imageIcon)}</inc-lib-icon-button
+                >
               </inc-lib-tooltip>
             </label>
             <inc-lib-tooltip placement="bottom" text="Insert emoji">
-              <inc-lib-icon-button class="emoji-button" @click=${() => {
-                el.showEmojiPicker.value = true;
-              }}>${unsafeSVG(emojiIcon)}</inc-lib-icon-button>
+              <inc-lib-icon-button
+                class="emoji-button"
+                @click=${() => {
+                  el.showEmojiPicker.value = true;
+                }}
+                >${unsafeSVG(emojiIcon)}</inc-lib-icon-button
+              >
             </inc-lib-tooltip>
-            ${el.showEmojiPicker ? html`<inc-lib-emoji-picker @select=${el.insertEmoji} @cancel=${() => el.showEmojiPicker.value = false}></inc-lib-emoji-picker>` : ''}
+            ${el.showEmojiPicker ? html`<inc-lib-emoji-picker @select=${el.insertEmoji} @cancel=${() => (el.showEmojiPicker.value = false)}></inc-lib-emoji-picker>` : ''}
           </div>
         </div>
-        ${el.transferErrors.length > 0
-          ? html`<ul class="errors">
-              ${el.transferErrors.map((err) => html`<li>${err}</li>`)}
-            </ul>`
-          : ''}`
-  ).style(`
-:host {
-  --_primary-color: var(--primary-color, #666);
-}
-.upload-icon {
-  width: 15px;
-}
-.errors {
-  color: #900;
-  list-style: none;
-  border-left: 8px solid #900;
-  padding-left: 10px;
-  width: 70ch;
-  font-size: small;
-}
-#prnt {
-   position: relative;
-   width: 75ch;
-}
-#add-special {
-  position: absolute;
-  right: 6px;
-  bottom: 6px;
-  z-index: 2;
-  & > inc-lib-emoji-picker {
-    position: absolute;
-    top: 40px;
-    left: -320px;
-  }
-}
-#upload-image {
-  display: none;
-}
-.image-button, .emoji-button {
-  opacity: 0;
-  transition: opacity 300ms ease;
-}
-#prnt:hover .image-button, #prnt:hover .emoji-button {
-  opacity: 0.9;
-}
-.image-button svg {
-  width: 16px;
-}
-.cm-editor {
-  padding: 6px;
-  background: white;
-  border: 1px solid #eee;
-  border-radius: 2px;
-  max-width: 80ch;
-  min-height: 12ex;
-}
-.cm-scroller {
-  padding-bottom: 16px;
-}
-.ͼ1 .cm-scroller {
-  font-family: serif;
-}
-.ͼb, .ͼ6 {
-  color: var(--_primary-color);
-}
-@media (prefers-color-scheme: dark) {
-  .cm-editor {
-    background: #222;
-    border-color: #393939;
-    color: #fafafa;
-  }
-  .ͼ2 .cm-content {
-    caret-color: #777;
-  }
-  .errors {
-    color: #e99;
-    border-color: #b00;
-  }
-  .ͼ4 {
-    color: #777;
-  }
-}
-`);
+        ${
+          el.transferErrors.length > 0
+            ? html`<ul class="errors">
+                ${repeat(
+                  el.transferErrors,
+                  (err) => err,
+                  (err) => html`<li>${err}</li>`
+                )}
+              </ul>`
+            : ''
+        }`
+  )
+  .style(css`
+    :host {
+      --_primary-color: var(--primary-color, #666);
+    }
+    .upload-icon {
+      width: 15px;
+    }
+    .errors {
+      color: #900;
+      list-style: none;
+      border-left: 8px solid #900;
+      padding-left: 10px;
+      width: 70ch;
+      font-size: small;
+    }
+    #prnt {
+      position: relative;
+      width: 75ch;
+    }
+    #add-special {
+      position: absolute;
+      right: 6px;
+      bottom: 6px;
+      z-index: 2;
+      & > inc-lib-emoji-picker {
+        position: absolute;
+        top: 40px;
+        left: -320px;
+      }
+    }
+    #upload-image {
+      display: none;
+    }
+    .image-button,
+    .emoji-button {
+      opacity: 0;
+      transition: opacity 300ms ease;
+    }
+    #prnt:hover .image-button,
+    #prnt:hover .emoji-button {
+      opacity: 0.9;
+    }
+    .image-button svg {
+      width: 16px;
+    }
+    .cm-editor {
+      padding: 6px;
+      background: white;
+      border: 1px solid #eee;
+      border-radius: 2px;
+      max-width: 80ch;
+      min-height: 12ex;
+    }
+    .cm-scroller {
+      padding-bottom: 16px;
+    }
+    .cm-md-marker {
+      opacity: 0.5;
+    }
+    .ͼ1 .cm-scroller {
+      font-family: serif;
+    }
+    .ͼb,
+    .ͼ6 {
+      color: var(--_primary-color);
+    }
+    @media (prefers-color-scheme: dark) {
+      .cm-editor {
+        background: #222;
+        border-color: #393939;
+        color: #fafafa;
+      }
+      .ͼ2 .cm-content {
+        caret-color: #777;
+      }
+      .errors {
+        color: #e99;
+        border-color: #b00;
+      }
+      .ͼ4 {
+        color: #777;
+      }
+    }
+  `);

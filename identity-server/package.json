@@ -18,6 +18,11 @@
   },
   "license": "MIT",
   "description": "Server-side signature verification for @stevvvns/identity-client.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stevvvns/stevvvns.git",
+    "directory": "identity-server"
+  },
   "dependencies": {
     "msgpack5": "^6.1.0"
   },

@@ -2,6 +2,11 @@
   "name": "@stevvvns/migrate",
   "version": "1.0.0",
   "description": "",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stevvvns/stevvvns.git",
+    "directory": "migrate"
+  },
   "type": "module",
   "main": "./src/index.js",
   "exports": {

@@ -21,6 +21,11 @@
   "author": "",
   "license": "MIT",
   "description": "",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stevvvns/stevvvns.git",
+    "directory": "pixel-avatar"
+  },
   "dependencies": {
     "seedrandom": "^3.0.5"
   }

@@ -43,9 +43,7 @@ export default (pg, connInfo) =>
 
     async getAppliedNames() {
       await this.connect();
-      const { rows } = await this.dbh.query(
-        'SELECT name FROM migrations ORDER BY name'
-      );
+      const { rows } = await this.dbh.query('SELECT name FROM migrations ORDER BY name');
       return rows.map(({ name }) => name);
     }
 

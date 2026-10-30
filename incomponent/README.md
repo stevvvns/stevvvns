@@ -22,6 +22,12 @@ Since function name become component names, you need to preserve them.
 
 In esbuild this is `keepNames: true` (`--keep-names` CLI), vite `esbuild.keepNames: true`, webpack `optimization.minimizer: [new TerserPlugin({ keep_fnames: true })]`
 
+### Linting & formatting templates
+
+Templates (``html`..` ``) are just `lit-html`, so the usual tooling works on them, e.g, [`eslint-plugin-lit`](https://github.com/43081j/eslint-plugin-lit).
+
+You can import `css` to tag your style block. This doesn't do anything at runtime, it just enables prettier formatting for your CSS. You can omit it if you don't care.
+
 ### Example
 
 This is what using the library generally looks like. API details below.

@@ -1,4 +1,4 @@
-import { comp, html, ref, derive, cx } from '@stevvvns/incomponent';
+import { comp, css, html, ref, derive, cx, repeat } from '@stevvvns/incomponent';
 
 comp(function LibTabs(el) {
   const current = ref('');
@@ -14,10 +14,7 @@ comp(function LibTabs(el) {
     const tabs = [];
     for (const tab of el.shadowRoot.querySelector('slot').assignedElements()) {
       if (tab.tagName !== 'INC-LIB-TAB') {
-        console.warn(
-          'found non-tab element as direct child of <inc-lib-tabs>',
-          tab
-        );
+        console.warn('found non-tab element as direct child of <inc-lib-tabs>', tab);
         continue;
       }
       tabs.push(tab);
@@ -29,8 +26,7 @@ comp(function LibTabs(el) {
     }
     derive(() => {
       for (const tab of tabs) {
-        tab.style.display =
-          tab.getAttribute('label') === el.current.value ? 'block' : 'none';
+        tab.style.display = tab.getAttribute('label') === el.current.value ? 'block' : 'none';
       }
     });
     el.labels.value = labels;
@@ -38,42 +34,42 @@ comp(function LibTabs(el) {
   .template(
     (el) =>
       html`<ol>
-          ${el.labels.map(
+          ${repeat(
+            el.labels,
+            (lbl) => lbl,
             (lbl) =>
               html`<li
                 class=${cx({ current: lbl === el.current })}
                 @click=${() => (el.current.value = lbl)}
               >
-                <a @click=${el.change} data-tab=${lbl}>
-                  ${lbl}
-                </a>
+                <a @click=${el.change} data-tab=${lbl}> ${lbl} </a>
               </li>`
           )}
         </ol>
         <slot></slot>`
-  ).style(`
-:host {
-  --_primary-color: var(--primary-color, #666);
-}
-ol {
-   margin: 0;
-   margin-bottom: 6px;
-   padding: 0;
-   list-style: none;
-}
-li {
-  display: inline-block;
-  margin-right: 1em;
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  transition: 120ms ease-in-out;
-}
-li.current {
-  font-weight: bold;
-  color: var(--_primary-color);
-  border-bottom: 2px solid var(--_primary-color);
-}
-`);
+  )
+  .style(css`
+    :host {
+      --_primary-color: var(--primary-color, #666);
+    }
+    ol {
+      margin: 0;
+      margin-bottom: 6px;
+      padding: 0;
+      list-style: none;
+    }
+    li {
+      display: inline-block;
+      margin-right: 1em;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: 120ms ease-in-out;
+    }
+    li.current {
+      font-weight: bold;
+      color: var(--_primary-color);
+      border-bottom: 2px solid var(--_primary-color);
+    }
+  `);
 
-comp('LibTab', ['label'])
-  .template(html`<slot></slot>`);
+comp('LibTab', ['label']).template(html`<slot></slot>`);

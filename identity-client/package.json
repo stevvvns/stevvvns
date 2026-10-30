@@ -25,6 +25,11 @@
   "author": "",
   "license": "MIT",
   "description": "",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stevvvns/stevvvns.git",
+    "directory": "identity-client"
+  },
   "dependencies": {
     "@stevvvns/incomponent": "^0.1.2",
     "msgpack5": "^6.1.0"

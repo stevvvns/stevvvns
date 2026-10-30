@@ -16,6 +16,11 @@
   "author": "",
   "license": "MIT",
   "description": "",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stevvvns/stevvvns.git",
+    "directory": "components"
+  },
   "dependencies": {
     "@codemirror/lang-markdown": "^6.4.0",
     "@stevvvns/incomponent": "^0.1.2",

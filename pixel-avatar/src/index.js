@@ -19,8 +19,7 @@ function hash(str, seed = 0) {
 
 function hslToRgb(h, s, l) {
   const a = s * Math.min(l, 1 - l);
-  const f = (n, k = (n + h / 30) % 12) =>
-    l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+  const f = (n, k = (n + h / 30) % 12) => l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
   return [f(0), f(8), f(4)].map((x) => Math.round(x * 255));
 }
 
@@ -86,9 +85,7 @@ RandpixOptions {
 
 export default function getAvatar(str, opts = {}) {
   const scheme =
-    (opts.scheme ?? matchMedia('(prefers-color-scheme: dark)').matches)
-      ? 'dark'
-      : 'light';
+    (opts.scheme ?? matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
   const [color, symmetry] = stringColor(str, scheme);
   return {
     imageUrl: randpix({
@@ -123,15 +120,7 @@ export function randpix(options) {
     return set[(rand() * set.length) >> 0];
   };
 
-  const createPattern = (
-    w,
-    h,
-    colorScheme,
-    chance,
-    color,
-    bias = 0,
-    grayscaleBias = false
-  ) => {
+  const createPattern = (w, h, colorScheme, chance, color, bias = 0, grayscaleBias = false) => {
     const pattern = [];
     for (let i = 0; i < h; i++) {
       pattern[i] = [];
@@ -141,13 +130,9 @@ export function randpix(options) {
           if (bias > 0) {
             if (grayscaleBias) {
               const scaledBias = scaleBias(bias);
-              pattern[i][j] = pattern[i][j].map((v, i) =>
-                i < 3 ? v + scaledBias : v
-              );
+              pattern[i][j] = pattern[i][j].map((v, i) => (i < 3 ? v + scaledBias : v));
             } else {
-              pattern[i][j] = pattern[i][j].map((v, i) =>
-                i < 3 ? v + scaleBias(bias) : v
-              );
+              pattern[i][j] = pattern[i][j].map((v, i) => (i < 3 ? v + scaleBias(bias) : v));
             }
           }
         } else {
@@ -182,15 +167,7 @@ export function randpix(options) {
     }
     return reflect(
       symm,
-      createPattern(
-        size[0],
-        size[1],
-        colorScheme,
-        chance,
-        color,
-        bias,
-        grayscaleBias
-      ),
+      createPattern(size[0], size[1], colorScheme, chance, color, bias, grayscaleBias),
       !!size.find((v) => !Number.isInteger(v))
     );
   };

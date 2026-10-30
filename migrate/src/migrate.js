@@ -1,12 +1,6 @@
 #!/usr/bin/env node
 
-import {
-  existsSync,
-  readdirSync,
-  readFileSync,
-  statSync,
-  writeFileSync
-} from 'fs';
+import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from 'fs';
 import { MigrationStore } from './index.js';
 
 const path = (() => {
@@ -29,8 +23,7 @@ const getDisk = () => {
     }))
     .filter(
       ({ path, name }) =>
-        !statSync(path).isDirectory() &&
-        /^\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}-\d+Z-/.test(name)
+        !statSync(path).isDirectory() && /^\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}-\d+Z-/.test(name)
     )
     .sort();
 };
@@ -91,9 +84,7 @@ const commands = {
         .replace(/[^-_a-z0-9]/g, '');
 
     const tpl = `${path}/template.js`;
-    const template = existsSync(tpl)
-      ? readFileSync(tpl, { encoding: 'utf8' })
-      : config.template;
+    const template = existsSync(tpl) ? readFileSync(tpl, { encoding: 'utf8' }) : config.template;
     const fullPath = `${path}/${name}.js`;
     writeFileSync(fullPath, template);
     console.log(fullPath);
@@ -143,8 +134,6 @@ const commands = {
 };
 
 if (!(cmd in commands)) {
-  throw new Error(
-    `unknown command '${cmd}', expected one of ${Object.keys(commands).join(', ')}`
-  );
+  throw new Error(`unknown command '${cmd}', expected one of ${Object.keys(commands).join(', ')}`);
 }
 commands[cmd](...rest);
