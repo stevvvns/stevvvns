@@ -29,7 +29,7 @@ function camelCaseBody(body) {
   return body;
 }
 
-export default async function attach(app, { path, log, verifyAccount = () => {} }) {
+export default async function attach(app, { path, log, verifyAccount = () => {}, ctx = {} }) {
   const actions = {};
   let resolveReady;
   const ready = new Promise((resolve) => {
@@ -77,7 +77,13 @@ export default async function attach(app, { path, log, verifyAccount = () => {} 
     }
     try {
       reply({
-        value: camelCaseBody(await actions[data.payload.mtd].impl(parsedArg.right))
+        value: camelCaseBody(
+          await actions[data.payload.mtd].impl(parsedArg.right, {
+            accountId: data.payload._account,
+            deviceKey: data.publicKey,
+            ...ctx
+          })
+        )
       });
     } catch (ex) {
       log?.error?.(ex.message, { ex });

@@ -28,13 +28,13 @@ comp(
 ).template(
   (el) => html`
     <div role="cell">
-      ${el.idx < el.len - 1 ? html`<button @click=${el.moveDown}>⬇️</button>` : html`<span style="display: inline-block; width: 26px;" />`}
+      ${el.idx < el.len - 1 ? html`<button @click=${el.moveDown}>⬇️</button>` : html`<span style="display: inline-block; width: 26px;"></span>`}
       ${el.idx > 0 ? html`<button @click=${el.moveUp}>⬆️</button>` : ''}
     </div>
     <div role="cell">
       ${el.iscurrent ? 'yes' : html`<button @click=${el.setCurrent}>no</button>`}
     </div>
-    <div role="cell"><input value=${el.data.name} @change=${el.rename} /></div>
+    <div role="cell"><input .value=${el.data.name} @change=${el.rename} /></div>
     <div role="cell" class="id-cell">
       <button class="remove" @click=${el.removeAccount}>✕</button>
       ${el.data.id}
@@ -119,7 +119,7 @@ comp(function Accounts() {
     </div>
     <input
       placeholder="account name"
-      value=${el.newName}
+      .value=${el.newName}
       @keyup=${(evt) => (el.newName.value = evt.target.value)}
     />
     <p><button @click=${el.add}>add</button></p>

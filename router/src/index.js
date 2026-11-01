@@ -1,6 +1,6 @@
 import createRouter from 'router5';
 import browserPlugin from 'router5-plugin-browser';
-import { comp, ref, derive, html } from '@stevvvns/incomponent';
+import { comp, ref, derive, html, nothing } from '@stevvvns/incomponent';
 
 let router5;
 export let navigate;
@@ -24,7 +24,7 @@ function mapRoutes(routes, prnts = [], paths = []) {
 }
 
 comp(function Router() {
-  const tpl = ref(html``);
+  const tpl = ref(nothing);
   derive(() => {
     if (route.value) {
       tpl.value = route.value.template;

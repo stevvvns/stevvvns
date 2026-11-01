@@ -7,10 +7,9 @@ import { repeat } from 'lit-html/directives/repeat.js';
 
 const cx = classMap;
 const sx = styleMap;
-export { html, svg, cx, sx, unsafeHTML, unsafeSVG, repeat };
+export { html, svg, cx, sx, unsafeHTML, unsafeSVG, repeat, nothing };
 
-// Tagged template that returns the composed string unchanged. The `css` tag
-// exists only so tooling (prettier, editors) treats the contents as CSS.
+// nb: this doesn't do anything except mark the string as CSS for the purpose of formatting utilities
 export function css(strings, ...values) {
   return String.raw({ raw: strings.raw }, ...values);
 }
@@ -127,6 +126,21 @@ export function derive(cb, deps = []) {
   return Ref.forDerived(cb, deps);
 }
 
+function coerceAttribute(value, attrVal) {
+  switch (typeof value) {
+    case 'boolean':
+      return attrVal !== null;
+    case 'number':
+      return parseFloat(attrVal);
+    default:
+      try {
+        return JSON.parse(attrVal);
+      } catch {
+        return attrVal;
+      }
+  }
+}
+
 const prefix = 'inc';
 export function comp(setup, observeAttrs = []) {
   const camelName = typeof setup === 'string' ? setup : setup.name;
@@ -218,7 +232,7 @@ export function comp(setup, observeAttrs = []) {
     attributeChangedCallback(prop, _oldVal, val) {
       for (const name of [prop, prop.replace(/-(.)/g, (ma) => ma[1].toUpperCase())]) {
         if (this.props[name] instanceof Ref) {
-          this.props[name].value = val;
+          this.props[name].value = coerceAttribute(this.props[name].value, val);
         } else {
           this.props[name] = val;
         }

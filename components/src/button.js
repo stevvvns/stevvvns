@@ -1,8 +1,8 @@
-import { comp, css, html } from '@stevvvns/incomponent';
+import { comp, css, html, ref } from '@stevvvns/incomponent';
 
 comp(
   function LibIconButton() {
-    return { disabled: false };
+    return { disabled: ref(false) };
   },
   ['disabled']
 )
@@ -32,7 +32,7 @@ comp(
 
 comp(
   function LibButton() {
-    return { disabled: false };
+    return { disabled: ref(false) };
   },
   ['type', 'disabled']
 )

@@ -7,7 +7,7 @@ const useWebsocketStore = store(function websocketStore(url, opts = {}) {
   return createConnection(url, opts);
 });
 
-export function useWebsocket(url, opts = {}) {
+export function useWebsocket(url = '/ws', opts = {}) {
   if (!url) {
     throw new Error('useWebsocket() requires a url');
   }

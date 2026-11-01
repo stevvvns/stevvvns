@@ -11,6 +11,8 @@
   },
   "scripts": {
     "demo": "node serve.js",
+    "prepare": "node scripts/vendor-tippy-css.mjs",
+    "vendor:tippy-css": "node scripts/vendor-tippy-css.mjs",
     "pub": "npm publish --access=public"
   },
   "author": "",

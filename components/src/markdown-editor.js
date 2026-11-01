@@ -82,6 +82,8 @@ comp(
     const editor = ref();
     const transferErrors = ref([]);
     const showEmojiPicker = ref(false);
+    const uploadImages = ref(false);
+    const emojiPicker = ref(false);
 
     function insertEmoji({ detail: { emoji } }) {
       const cm = editor.value;
@@ -95,10 +97,12 @@ comp(
       initialValue: '',
       transferErrors,
       showEmojiPicker,
-      insertEmoji
+      insertEmoji,
+      uploadImages,
+      emojiPicker
     };
   },
-  ['placeholder', 'initialValue']
+  ['placeholder', 'initialValue', 'uploadImages', 'emojiPicker']
 )
   .init((el) => {
     const isTransferring = ref(false);
@@ -205,8 +209,8 @@ comp(
   .template(
     (el) =>
       html`<div id="prnt">
-          <div id="add-special">
-            <label for="upload-image">
+          <div id="add-special" class=${el.uploadImages || el.emojiPicker ? '' : 'hidden'}>
+            <label for="upload-image" class=${el.uploadImages ? '' : 'hidden'}>
               <input id="upload-image" type="file" accept="image/*" multiple />
               <inc-lib-tooltip placement="bottom" text="Insert images">
                 <inc-lib-icon-button class="image-button"
@@ -214,7 +218,11 @@ comp(
                 >
               </inc-lib-tooltip>
             </label>
-            <inc-lib-tooltip placement="bottom" text="Insert emoji">
+            <inc-lib-tooltip
+              placement="bottom"
+              text="Insert emoji"
+              class=${el.emojiPicker ? '' : 'hidden'}
+            >
               <inc-lib-icon-button
                 class="emoji-button"
                 @click=${() => {
@@ -241,6 +249,9 @@ comp(
   .style(css`
     :host {
       --_primary-color: var(--primary-color, #666);
+    }
+    .hidden {
+      display: none;
     }
     .upload-icon {
       width: 15px;

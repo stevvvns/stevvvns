@@ -121,6 +121,7 @@ This does about what you'd expect, giving you a button you can click to see two 
 	 * `repeat(items, keyFn, subtemplate)` an important utility to render dynamic lists into `<li>` or similar.
 		 * `keyFn` returns a unique id for each item that `lit-html` can use to track the item during updates instead of using its index in the list, which may be volatile and result in mixed up renders.
 	 * You can add other directives by including `lit-html` as your own direct dependency
+     * `nothing` is a more readable version of ``` html`` ```
 
 #### ``builder.style(`...`)``
  * Scoped styles contained to the element's shadow DOM

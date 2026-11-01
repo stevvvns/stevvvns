@@ -111,3 +111,49 @@ test('comp: renders a template into shadow DOM', async () => {
 
   assert.ok(el.shadowRoot.textContent.includes('hello'));
 });
+
+test('comp: boolean observed attribute coerces back to boolean', async () => {
+  comp(
+    function BooleanProp() {
+      return { uploadImages: ref(false) };
+    },
+    ['uploadImages']
+  ).template((el) => html`<span data-up="${el.uploadImages}"></span>`);
+
+  const el = document.createElement('inc-boolean-prop');
+  document.body.appendChild(el);
+  assert.equal(el.uploadImages.value, false);
+
+  // lit-html's `?upload-images=${true}` uses toggleAttribute.
+  el.toggleAttribute('upload-images', true);
+  assert.equal(el.uploadImages.value, true);
+
+  el.toggleAttribute('upload-images', false);
+  assert.equal(el.uploadImages.value, false);
+
+  // Plain attribute binding `upload-images=${true}` sets the string "true".
+  el.setAttribute('upload-images', 'true');
+  assert.equal(el.uploadImages.value, true);
+
+  await new Promise((resolve) => requestAnimationFrame(resolve));
+  assert.equal(el.shadowRoot.querySelector('span').getAttribute('data-up'), 'true');
+});
+
+test('comp: number observed attribute coerces back to number', async () => {
+  comp(
+    function NumberProp() {
+      return { saveLast: ref(26) };
+    },
+    ['saveLast']
+  ).template((el) => html`<span data-n="${el.saveLast}"></span>`);
+
+  const el = document.createElement('inc-number-prop');
+  document.body.appendChild(el);
+  assert.equal(el.saveLast.value, 26);
+
+  el.setAttribute('save-last', '3');
+  assert.equal(el.saveLast.value, 3);
+
+  await new Promise((resolve) => requestAnimationFrame(resolve));
+  assert.equal(el.shadowRoot.querySelector('span').getAttribute('data-n'), '3');
+});
